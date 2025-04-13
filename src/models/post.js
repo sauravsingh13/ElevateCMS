@@ -1,11 +1,11 @@
-// models/Post.js
 import mongoose from 'mongoose';
 
 const PostSchema = new mongoose.Schema(
   {
-    title: String,
-    content: String,
-    slug: { type: String, unique: true },
+    title: { type: String, required: true },
+    content: { type: String, required: true },
+    published: { type: Boolean, default: false },
+    author: { type: String }
   },
   { timestamps: true }
 );

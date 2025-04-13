@@ -2,7 +2,7 @@
 import mongoose from 'mongoose';
 
 const MONGO_URI = process.env.MONGO_URI;
-
+console.log('Connecting to MongoDB...', MONGO_URI);
 if (!MONGO_URI) {
   throw new Error('Please define the MONGO_URI in your .env.local');
 }
