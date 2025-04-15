@@ -24,8 +24,13 @@ import TableChartIcon from '@mui/icons-material/TableChart';
 import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
 
+// Import necessary Tiptap extensions
+import BulletList from '@tiptap/extension-bullet-list';
+import OrderedList from '@tiptap/extension-ordered-list';
+import ListItem from '@tiptap/extension-list-item';
+import Blockquote from '@tiptap/extension-blockquote';
 
- const MenuBar = ({ editor }: { editor: any }) => {
+const MenuBar = ({ editor }: { editor: any }) => {
     if (!editor) return null;
 
     return (
@@ -67,7 +72,12 @@ import InsertLinkIcon from '@mui/icons-material/InsertLink';
           <button
             title="Insert Link"
             onClick={() => {
-              const url = window.prompt("Enter the URL");
+              const { from, to } = editor.state.selection;
+              if (from === to) {
+                alert("Please select text to link.");
+                return;
+              }
+              const url = window.prompt("Enter the URL", "https://");
               if (url) {
                 editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
               }
@@ -81,7 +91,9 @@ import InsertLinkIcon from '@mui/icons-material/InsertLink';
 
           <button
             title="Blockquote"
-            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            onClick={() => {
+              editor.chain().focus().setParagraph().toggleBlockquote().run();
+            }}
             className={`px-2 py-1 rounded ${
               editor.isActive("blockquote") ? "bg-lime-100 text-lime-800 shadow-sm" : "bg-gray-100 text-gray-700"
             }`}
@@ -129,8 +141,21 @@ import InsertLinkIcon from '@mui/icons-material/InsertLink';
           <button
             title="Insert Image"
             onClick={() => {
-              const url = window.prompt("Enter image URL");
-              if (url) editor.chain().focus().setImage({ src: url }).run();
+              const input = document.createElement("input");
+              input.type = "file";
+              input.accept = "image/*";
+              input.onchange = async () => {
+                const file = input.files?.[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = () => {
+                  const base64 = reader.result as string;
+                  editor.chain().focus().setImage({ src: base64 }).run();
+                };
+                reader.readAsDataURL(file);
+              };
+              input.click();
             }}
             className="px-2 py-1 rounded bg-gray-100 text-gray-700"
           >
@@ -206,7 +231,9 @@ import InsertLinkIcon from '@mui/icons-material/InsertLink';
 
           <button
             title="Bullet List"
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            onClick={() => {
+              editor.chain().focus().setParagraph().toggleBulletList().run();
+            }}
             className={`px-2 py-1 rounded ${
               editor.isActive("bulletList")
                 ? "bg-rose-100 text-rose-800 shadow-sm"
@@ -217,7 +244,9 @@ import InsertLinkIcon from '@mui/icons-material/InsertLink';
           </button>
           <button
             title="Ordered List"
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            onClick={() => {
+              editor.chain().focus().setParagraph().toggleOrderedList().run();
+            }}
             className={`px-2 py-1 rounded ${
               editor.isActive("orderedList")
                 ? "bg-orange-100 text-orange-800 shadow-sm"

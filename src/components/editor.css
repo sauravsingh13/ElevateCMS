@@ -1,0 +1,59 @@
+.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #adb5bd;
+  pointer-events: none;
+  height: 0;
+}
+
+.ProseMirror p.is-empty::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #adb5bd;
+  pointer-events: none;
+  height: 0;
+}
+
+.ProseMirror ul {
+  list-style-type: disc !important;
+  padding-left: 1.5em !important;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5em !important;
+}
+
+.ProseMirror ul li, .ProseMirror ol li {
+  display: list-item !important;
+  margin-left: 1em !important;
+}
+
+/* Override any conflicting styles from the prose class */
+.prose ul, .prose ol {
+  list-style-type: inherit !important;
+  padding-left: inherit !important;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5em !important;
+  margin-left: 0.5em !important;
+}
+
+.ProseMirror ol li {
+  display: list-item !important;
+  margin-left: 1em !important;
+  list-style-position: outside !important;
+}
+
+/* Increase specificity to override potential conflicts */
+.prose ol.ol-list {
+  list-style-type: decimal !important;
+}
+
+/* Make sure list markers are visible */
+.ProseMirror ol li::marker {
+  color: currentColor !important;
+  font-weight: normal !important;
+}
