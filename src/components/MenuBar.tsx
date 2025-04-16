@@ -69,38 +69,76 @@ const MenuBar = ({ editor, id, setBgColor, setBgImage, setTheme, handlePreviewMo
                 </select>
             </div>
 
-            <div className="mb-4 space-y-3 w-full">
-                <label className="text-xs font-medium text-gray-600">Page Background Color</label>
-                <input
+            <div className="mb-4 w-full">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-gray-600">Page Background Color</label>
+                  <input
                     type="color"
                     className="w-full h-8 rounded border border-gray-300"
                     onChange={(e) => {
-                        setBgColor(e.target.value);
-                        document.querySelector('.tiptap')?.setAttribute('style', `background-color: ${e.target.value};`);
+                      setBgColor(e.target.value);
+                      document.querySelector('.tiptap')?.setAttribute('style', `background-color: ${e.target.value};`);
                     }}
-                />
-
-                <label className="text-xs font-medium text-gray-600">Page Background Image</label>
-                <input
+                  />
+                </div>
+ 
+                <div>
+                  <label className="text-xs font-medium text-gray-600">Page Background Image</label>
+                  <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                            const base64 = reader.result as string;
-                            setBgImage(base64);
-                            document.querySelector('.tiptap')?.setAttribute('style', `background-image: url(${base64}); background-size: cover;`);
-                        };
-                        reader.readAsDataURL(file);
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+ 
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        const base64 = reader.result as string;
+                        setBgImage(base64);
+                        document.querySelector('.tiptap')?.setAttribute('style', `background-image: url(${base64}); background-size: cover;`);
+                      };
+                      reader.readAsDataURL(file);
                     }}
                     className="w-full"
-                />
+                  />
+                </div>
+              </div>
+ 
+              <label className="text-xs font-medium text-gray-600 mt-4 block">Set Thumbnail Image</label>
+              <button
+                title="Set Thumbnail"
+                onClick={() => {
+                  const input = document.createElement("input");
+                  input.type = "file";
+                  input.accept = "image/*";
+                  input.onchange = async () => {
+                    const file = input.files?.[0];
+                    if (!file) return;
+ 
+                    if (file.size > 2 * 1024 * 1024) {
+                      alert("Thumbnail image must be less than 2MB");
+                      return;
+                    }
+ 
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      const base64 = reader.result as string;
+                      localStorage.setItem(`thumbnail-${id}`, base64);
+                      alert("Thumbnail set successfully!");
+                    };
+                    reader.readAsDataURL(file);
+                  };
+                  input.click();
+                }}
+                className="w-full flex items-center justify-center space-x-1 py-2 px-3 rounded bg-gray-100 text-gray-700 border border-gray-300 hover:border-blue-400"
+              >
+                <ImageIcon className="mr-2" />
+                <span className="text-sm font-medium">Upload Thumbnail</span>
+              </button>
             </div>
 
-            <div className="grid grid-cols-4 gap-3 auto-rows-min">
+            <div className="grid grid-cols-5 gap-3 auto-rows-min">
                 <button
                     title="Insert Link"
                     onClick={() => {
@@ -179,38 +217,25 @@ const MenuBar = ({ editor, id, setBgColor, setBgImage, setTheme, handlePreviewMo
                         input.onchange = async () => {
                             const file = input.files?.[0];
                             if (!file) return;
-
+ 
                             const alt = prompt("Enter alt text:");
                             const alignment = prompt("Align image left, center, or right?", "center");
-
+ 
                             const reader = new FileReader();
                             reader.onload = () => {
                                 const base64 = reader.result as string;
                                 editor
                                     .chain()
                                     .focus()
-                                    // .setImage({
-                                    //     src: base64,
-                                    //     alt: alt || "",
-                                    //     title: alt || "",
-                                    //     style: `display: block; margin: ${
-                                    //         alignment === "left"
-                                    //           ? "0 auto 0 0"
-                                    //           : alignment === "right"
-                                    //           ? "0 0 0 auto"
-                                    //           : "0 auto"
-                                    //       }; max-width: 100%; height: auto;`,
-                                    // })
-                                    // .setNode("resizableImage", { src: base64, alt: alt || "", width: 300 })
-                                .insertContent({
+                                    .insertContent({
                                         type: "resizableImage",
                                         attrs: {
-                                          src: base64,
-                                          alt: alt || "",
-                                          width: 300,
-                                          alignment: alignment || "center",
+                                            src: base64,
+                                            alt: alt || "",
+                                            width: 300,
+                                            alignment: alignment || "center",
                                         },
-                                      })
+                                    })
                                     .run();
                             };
                             reader.readAsDataURL(file);
@@ -337,15 +362,17 @@ const MenuBar = ({ editor, id, setBgColor, setBgImage, setTheme, handlePreviewMo
                 </select>
             </div>
             <div className="mt-4 flex flex-col gap-2 w-full">
-                <button onClick={() => handleSave(false)} className="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-2 rounded">
-                    Draft
+              <div className="flex justify-between gap-3">
+                <button onClick={() => handleSave(false)} className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-2 rounded">
+                  Draft
                 </button>
-                <button onClick={() => handleSave(true)} className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-2 rounded">
-                    Publish
+                <button onClick={() => handleSave(true)} className="flex-1 bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-2 rounded">
+                  Publish
                 </button>
-                <button onClick={handlePreview} className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-2 rounded">
-                    Preview
-                </button>
+              </div>
+              <button onClick={handlePreview} className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-2 rounded">
+                Preview
+              </button>
             </div>
 
             <Modal open={openPreview} onClose={handleClose}>

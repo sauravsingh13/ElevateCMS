@@ -260,13 +260,14 @@ function getCompleteHTML() {
   const handleSave = async (published: boolean) => {
     const token = localStorage.getItem("token");
     const content = getCompleteHTML();
+    const thumbnail = localStorage.getItem(`thumbnail-${id}`);
     await fetch("/api/posts?id="+id, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ id, content, published })
+        body: JSON.stringify({ id, content, published, thumbnail })
     });
 };
 
@@ -285,7 +286,7 @@ function getCompleteHTML() {
       </div>
 
       {/* Right sidebar: MenuBar */}
-      <div className=" w-56 bg-white border-l border-gray-200 shadow-lg z-50 px-3 py-4 flexr" style={{ height: '85vh'}}>
+      <div className=" w-60 bg-white border-l border-gray-200 shadow-lg z-50 px-3 py-4 flexr" style={{ height: '85vh'}}>
       <MenuBar editor={editor} id={id} setBgColor={setBgColor} setBgImage={setBgImage} setTheme={setTheme} handlePreviewModel={handlePreviewModel} handleSave={handleSave}/>
       </div>
 

@@ -8,6 +8,7 @@ import Image from "next/image";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 export default function Dashboard() {
   const [posts, setPosts] = useState<{
@@ -103,24 +104,40 @@ export default function Dashboard() {
                     Delete
                   </button>
                 </div>
-                <div className="mt-2 flex items-center justify-between text-sm font-medium text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
-                  <span className={`${post.published ? "text-green-600" : "text-yellow-500"}`}>
-                    {post.published ? "Published" : "Draft"}
-                  </span>
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1">
-                      <ThumbUpIcon fontSize="small" className="text-gray-500" />
-                      <span>{post.likes}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <ThumbDownIcon fontSize="small" className="text-gray-500" />
-                      <span>{post.dislikes}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <VisibilityIcon fontSize="small" className="text-gray-500" />
-                      <span>{post.views}</span>
-                    </div>
+                <div className="mt-2 text-sm font-medium text-gray-700 bg-gray-100 px-3 py-2 rounded-md flex items-center justify-between gap-2">
+                    <span className={`${post.published ? "text-green-600" : "text-yellow-500"}`}>
+                      {post.published ? "Published" : "Draft"}
+                    </span>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1">
+                        <ThumbUpIcon fontSize="small" className="text-gray-500" />
+                        <span>{post.likes}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <ThumbDownIcon fontSize="small" className="text-gray-500" />
+                        <span>{post.dislikes}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <VisibilityIcon fontSize="small" className="text-gray-500" />
+                        <span>{post.views}</span>
+                      </div>
                   </div>
+                  {post.published && (
+                    <div>
+                      <button
+                        onClick={() => {
+                          const blogLink = `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/blog/${post._id}`;
+                          navigator.clipboard.writeText(blogLink);
+                          alert("Link copied to clipboard!");
+                        }}
+                        title="Copy blog link"
+                        className="flex items-center text-sm text-blue-600 hover:text-blue-800"
+                      >
+                        <ContentCopyIcon fontSize="small" className="mr-1" />
+                        Copy Link
+                      </button>
+                    </div>
+                  )}
                 </div>
                 {post.publishedAt && (
                   <p className="text-sm text-gray-500">
