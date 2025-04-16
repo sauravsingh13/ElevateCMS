@@ -1,8 +1,8 @@
-import dbConnect from "../../../utils/dbconnect";
-import Post from '../../../models/post';
+import dbConnect from "@/utils/dbconnect";
+import Post from '@/models/post';
 import slugify from 'slugify';
 import { NextResponse } from 'next/server';
-import { verifyToken } from '../../../middleware/verifyToken';
+import { verifyToken } from '@/middleware/verifyToken';
 
 export async function POST(request) {
   await dbConnect();

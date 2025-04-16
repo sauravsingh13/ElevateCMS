@@ -40,7 +40,7 @@ const ResizableImageComponent = ({ node, updateAttributes }: any) => {
 <NodeViewWrapper className="my-4" style={{ width: '100%', overflow: 'auto' }}>
       <div
         style={{
-          display: 'flex',
+          // display: 'flex',
           justifyContent:
             alignment === 'center'
               ? 'center'

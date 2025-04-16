@@ -66,6 +66,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/react-resizable": "^3.0.8",
     "tailwindcss": "^4.1.4",
     "typescript": "^5"
   }

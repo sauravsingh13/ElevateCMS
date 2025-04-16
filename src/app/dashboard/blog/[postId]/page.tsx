@@ -6,7 +6,7 @@ interface BlogPageParams {
   postId: string;
 }
 
-export default async function BlogPage({ params }: { params: BlogPageParams }) {
+export default async function BlogPage({ params }: { params: any }) {
     const resolvedParams = await params;
     const { postId } = resolvedParams;
       const res = await fetch(`http://localhost:3000/api/blog/${postId}`, {
