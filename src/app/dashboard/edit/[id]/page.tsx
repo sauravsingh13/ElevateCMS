@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Editor from "@/components/Editor";
 import Header from "@/components/Header";
+import { useRouter } from "next/navigation";
 
 export default function EditPostPage() {
+  const router = useRouter();
   const params = useParams();
   const id = params?.id;
   const [title, setTitle] = useState(`Post Title ${id}`);
@@ -20,6 +22,10 @@ export default function EditPostPage() {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
+        if (res.status === 401 || res.status === 403) {
+          router.push('/');
+          return;
+        }
         const post = await res.json();
         setTitle(post.title);
         setContent(post.content);

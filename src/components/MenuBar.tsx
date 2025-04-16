@@ -32,28 +32,11 @@ import OrderedList from '@tiptap/extension-ordered-list';
 import ListItem from '@tiptap/extension-list-item';
 import Blockquote from '@tiptap/extension-blockquote';
 
-const MenuBar = ({ editor, id }: { editor: any, id: string }) => {
+const MenuBar = ({ editor, id, setBgColor, setBgImage, setTheme, handlePreviewModel, handleSave }: { editor: any, id: string, setBgColor: any, setBgImage: any, setTheme: any, handlePreviewModel: any, handleSave: any }) => {
     const [openPreview, setOpenPreview] = useState(false);
 
-    const handleSave = async (published: boolean) => {
-        const token = localStorage.getItem("token");
-        const titleEl = document.querySelector(".ProseMirror h1");
-        const title = titleEl ? titleEl.textContent : "Untitled";
-        const content = editor?.getHTML();
-
-        await fetch("/api/posts?id="+id, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({ id, content, published })
-        });
-        alert(published ? "Published!" : "Saved as Draft");
-    };
-
-    const handlePreview = () => setOpenPreview(true);
-    const handleClose = () => setOpenPreview(false);
+    const handlePreview = () => handlePreviewModel(true);
+    const handleClose = () => handlePreviewModel(false);
 
     if (!editor) return null;
 
@@ -86,7 +69,38 @@ const MenuBar = ({ editor, id }: { editor: any, id: string }) => {
                 </select>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 auto-rows-min">
+            <div className="mb-4 space-y-3 w-full">
+                <label className="text-xs font-medium text-gray-600">Page Background Color</label>
+                <input
+                    type="color"
+                    className="w-full h-8 rounded border border-gray-300"
+                    onChange={(e) => {
+                        setBgColor(e.target.value);
+                        document.querySelector('.tiptap')?.setAttribute('style', `background-color: ${e.target.value};`);
+                    }}
+                />
+
+                <label className="text-xs font-medium text-gray-600">Page Background Image</label>
+                <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            const base64 = reader.result as string;
+                            setBgImage(base64);
+                            document.querySelector('.tiptap')?.setAttribute('style', `background-image: url(${base64}); background-size: cover;`);
+                        };
+                        reader.readAsDataURL(file);
+                    }}
+                    className="w-full"
+                />
+            </div>
+
+            <div className="grid grid-cols-4 gap-3 auto-rows-min">
                 <button
                     title="Insert Link"
                     onClick={() => {
@@ -166,10 +180,38 @@ const MenuBar = ({ editor, id }: { editor: any, id: string }) => {
                             const file = input.files?.[0];
                             if (!file) return;
 
+                            const alt = prompt("Enter alt text:");
+                            const alignment = prompt("Align image left, center, or right?", "center");
+
                             const reader = new FileReader();
                             reader.onload = () => {
                                 const base64 = reader.result as string;
-                                editor.chain().focus().setImage({ src: base64 }).run();
+                                editor
+                                    .chain()
+                                    .focus()
+                                    // .setImage({
+                                    //     src: base64,
+                                    //     alt: alt || "",
+                                    //     title: alt || "",
+                                    //     style: `display: block; margin: ${
+                                    //         alignment === "left"
+                                    //           ? "0 auto 0 0"
+                                    //           : alignment === "right"
+                                    //           ? "0 0 0 auto"
+                                    //           : "0 auto"
+                                    //       }; max-width: 100%; height: auto;`,
+                                    // })
+                                    // .setNode("resizableImage", { src: base64, alt: alt || "", width: 300 })
+                                .insertContent({
+                                        type: "resizableImage",
+                                        attrs: {
+                                          src: base64,
+                                          alt: alt || "",
+                                          width: 300,
+                                          alignment: alignment || "center",
+                                        },
+                                      })
+                                    .run();
                             };
                             reader.readAsDataURL(file);
                         };
@@ -283,6 +325,17 @@ const MenuBar = ({ editor, id }: { editor: any, id: string }) => {
                 </button>
             </div>
 
+            <div className="mb-4">
+                <label className="text-xs font-medium text-gray-600">Theme</label>
+                <select
+                    onChange={(e) => setTheme(e.target.value)}
+                    className="w-full mt-1 px-2 py-1 rounded border border-gray-300 text-gray-700 hover:border-blue-400 focus:outline-none"
+                >
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="sepia">Sepia</option>
+                </select>
+            </div>
             <div className="mt-4 flex flex-col gap-2 w-full">
                 <button onClick={() => handleSave(false)} className="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-2 rounded">
                     Draft
@@ -309,7 +362,32 @@ const MenuBar = ({ editor, id }: { editor: any, id: string }) => {
                     width: '80%',
                     borderRadius: 2
                 }}>
-                    <div dangerouslySetInnerHTML={{ __html: editor?.getHTML() }} />
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: editor?.getHTML()
+                          ?.replace(/<resizable-image([^>]*)>/g, (_: string, attr: string) => {
+                            const styleMatch = attr.match(/width="(\d+)"/);
+                            const width = styleMatch ? `${styleMatch[1]}px` : "300px";
+                            const heightMatch = attr.match(/height="([^"]*)"/);
+                            const height = heightMatch ? heightMatch[1] : "auto";
+                            const altMatch = attr.match(/alt="([^"]*)"/);
+                            const alt = altMatch ? altMatch[1] : "";
+                            const srcMatch = attr.match(/src="([^"]*)"/);
+                            const src = srcMatch ? srcMatch[1] : "";
+                            const alignmentMatch = attr.match(/alignment="([^"]*)"/);
+                            const alignment = alignmentMatch ? alignmentMatch[1] : "center";
+
+                            return `<img src="${src}" alt="${alt}" style="display: block; margin: ${
+                              alignment === "left"
+                                ? "0 auto 0 0"
+                                : alignment === "right"
+                                ? "0 0 0 auto"
+                                : "0 auto"
+                            }; max-width: 100%; width: ${width}; height: ${height}; object-fit: cover; border-radius: 6px;" />`;
+                          })
+                          .replace(/<\/resizable-image>/g, '')
+                      }}
+                    />
                 </Box>
             </Modal>
         </>

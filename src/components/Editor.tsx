@@ -4,6 +4,16 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Image from "@tiptap/extension-image";
+const CustomImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      alt: { default: null },
+      title: { default: null },
+      style: { default: null },
+    };
+  },
+});
 import Placeholder from "@tiptap/extension-placeholder";
 import TextStyle from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
@@ -32,9 +42,10 @@ import ImageIcon from '@mui/icons-material/Image';
 import { SlashCommand } from "@/extensions/slash-command";
 import MenuBar from "@/components/MenuBar";
 import './editor.css'
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
+import ResizableImage from "@/extensions/ResizableImage";
 
 interface EditorProps {
   content: string;
@@ -43,6 +54,12 @@ interface EditorProps {
 }
 
 export default function Editor({ content, title, id }: EditorProps) {
+  const [bgColor, setBgColor] = useState('');
+  const [bgImage, setBgImage] = useState('');
+  const [theme, setTheme] = useState("light");
+  const [editorHtmlData, setEditorHtmlData] = useState("");
+
+
   const titleEditor = useEditor({
     extensions: [
       StarterKit,
@@ -64,7 +81,7 @@ export default function Editor({ content, title, id }: EditorProps) {
     extensions: [
       StarterKit,
       Underline,
-      Image,
+      CustomImage,
       Placeholder.configure({
         placeholder: "hit /",
       }),
@@ -78,6 +95,7 @@ export default function Editor({ content, title, id }: EditorProps) {
       TableRow,
       TableCell,
       TableHeader,
+      ResizableImage,
       Youtube.configure({
         width: 640,
         height: 360,
@@ -112,69 +130,168 @@ export default function Editor({ content, title, id }: EditorProps) {
         },
       }),
     ],
-    content,
+    content:"",
     editorProps: {
       attributes: {
         class:
-        "focus:outline-none max-w-full min-h-[400px] px-2 prose prose-sm prose-ul:list-disc prose-ol:list-decimal",
+        "focus:outline-none max-w-full min-h-[400px] px-2 mx-auto prose prose-sm prose-ul:list-disc prose-ol:list-decimal flex flex-col items-center",
+        style: `${bgColor ? `background-color: ${bgColor};` : ''} ${bgImage ? `background-image: url(${bgImage}); background-size: cover;` : ''}`
       },
     },
   });
 
   const [openPreview, setOpenPreview] = useState(false);
 
-  const handleSave = async (published: boolean) => {
-    const token = localStorage.getItem("token");
-    const titleEl = document.querySelector(".ProseMirror h1");
-    const title = titleEl ? titleEl.textContent : "Untitled";
-    const content = editor?.getHTML();
 
-    await fetch("/api/posts", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ id, content, published })
-    });
-    alert(published ? "Published!" : "Saved as Draft");
-  };
-
-  const handlePreview = () => setOpenPreview(true);
   const handleClose = () => setOpenPreview(false);
+
+  // Function to get HTML with the parent container
+function getCompleteHTML() {
+  if (!editor) return '';
+  
+  // Get the editor's content
+  const editorContent = editor.getHTML();
+  
+  // Get the editor's DOM element to extract applied styles
+  const editorDOM = document.querySelector(".tiptap.ProseMirror");
+  const editorStyle = editorDOM?.getAttribute('style') || '';
+  const editorClasses = editorDOM?.getAttribute('class') || '';
+  
+  // Create a parent container with the extracted styles
+  const containerDiv = document.createElement('div');
+  if (editorStyle) {
+    containerDiv.setAttribute('style', editorStyle);
+  }
+  
+  // Optionally preserve classes that aren't tiptap-specific
+  if (editorClasses) {
+    const filteredClasses = editorClasses
+      .split(' ')
+      .filter(cls => !['tiptap', 'ProseMirror'].includes(cls))
+      .join(' ');
+    
+    if (filteredClasses) {
+      containerDiv.setAttribute('class', filteredClasses);
+    }
+  }
+  
+  // Set the editor content inside the container
+  containerDiv.innerHTML = editorContent;
+  
+  // Create a wrapper to get the HTML
+  const wrapper = document.createElement('div');
+  wrapper.appendChild(containerDiv);
+  console.log('wrapper',typeof wrapper.innerHTML)
+  return wrapper.innerHTML.replaceAll('resizable-image','img');
+}
 
   useEffect(() => {
     if (editor && content) {
-      editor.commands.setContent(content);
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(content, "text/html");
+        
+        // Step 1: Extract styles from the parent container
+        const rootDiv = doc.body.firstElementChild;
+        let extractedStyle = '';
+        
+        if (rootDiv && rootDiv.tagName === 'DIV') {
+          extractedStyle = rootDiv.getAttribute('style') || '';
+          
+          // Optional: Extract any classes too
+          const extractedClasses = rootDiv.getAttribute('class') || '';
+          
+          // Step 2: Apply the styles to your editor container
+          setTimeout(() => {
+            // Find the actual editor DOM element
+            const editorContainer = document.querySelector(".tiptap.ProseMirror");
+            if (editorContainer) {
+              // Apply the extracted styles
+              if (extractedStyle) {
+                editorContainer.setAttribute("style", extractedStyle);
+              }
+              
+              // Optionally apply classes if needed
+              if (extractedClasses) {
+                extractedClasses.split(' ').forEach(cls => {
+                  if (cls.trim()) editorContainer.classList.add(cls.trim());
+                });
+              }
+            }
+          }, 100); // Small delay to ensure DOM is ready
+        }
+        
+        // Handle image replacements as you were doing
+        doc.querySelectorAll("img").forEach((img) => {
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = `<resizable-image src="${img.src}" alt="${img.alt}" width="300" alignment="center"></resizable-image>`;
+          if (wrapper.firstChild) {
+            img.replaceWith(wrapper.firstChild);
+          }
+        });
+        
+        // Get the inner content of the root div (if it exists)
+        const contentToSet = rootDiv && rootDiv.tagName === 'DIV' 
+          ? rootDiv.innerHTML 
+          : doc.body.innerHTML;
+          
+        // Set the content in the editor
+        setTimeout(() => {
+          editor.commands.setContent(contentToSet, false);
+        }, 0);
+        
+      } catch (e) {
+        console.error("Error processing content:", e);
+        setTimeout(() => {
+          editor.commands.setContent(content, false);
+        }, 0);
+      }
     }
-    // if (titleEditor && title) {
-    //   titleEditor.commands.setContent(`<h1>${title}</h1>`);
-    // }
-  }, [content, title, editor, titleEditor]);
-  /**
-   * USER FLOW EXPECTATIONS:
-   * 1. User sees an "Article title..." placeholder to start with a heading.
-   * 2. Below that, "Start writing" placeholder encourages writing the body.
-   * 3. As the user types, formatting can be applied using the vertical MenuBar on the right.
-   * 4. MenuBar offers text formatting, headings, lists, code blocks, media embeds, and links.
-   * 5. The editor scrolls independently while the menu remains fixed to the right.
-   */
+  }, [content, editor]);
+
+  const handlePreviewModel = (value: boolean) => {
+    setOpenPreview(value);
+    if (value) {
+      let data = getCompleteHTML()
+      setEditorHtmlData(data);
+    }
+  }
+
+  const handleSave = async (published: boolean) => {
+    const token = localStorage.getItem("token");
+    const content = getCompleteHTML();
+    await fetch("/api/posts?id="+id, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ id, content, published })
+    });
+};
 
   return (
     <div className="flex flex-row w-full h-full px-10 items-center justify-evenly">
       {/* Editor container with scroll */}
-      <div className="flex flex-col items-center bg-white/90 backdrop-blur-lg rounded-xl shadow-lg overflow-y-auto" style={{ height: '85vh' , width: '80%' }}>
+      <div className={`flex flex-col items-center overflow-y-auto rounded-xl shadow-lg backdrop-blur-lg ${
+        theme === 'light'
+          ? 'bg-white/90 text-black'
+          : theme === 'dark'
+          ? 'bg-gray-800 text-white'
+          : 'bg-yellow-100/90 text-gray-900'
+      }`} style={{ height: '85vh' , width: '80%', backgroundColor: bgColor, backgroundImage: `url(${bgImage})`, backgroundSize: 'cover' }}>
         {/* <EditorContent editor={titleEditor} /> */}
         <EditorContent editor={editor} />
       </div>
 
       {/* Right sidebar: MenuBar */}
       <div className=" w-56 bg-white border-l border-gray-200 shadow-lg z-50 px-3 py-4 flexr" style={{ height: '85vh'}}>
-      <MenuBar editor={editor} id={id}/>
+      <MenuBar editor={editor} id={id} setBgColor={setBgColor} setBgImage={setBgImage} setTheme={setTheme} handlePreviewModel={handlePreviewModel} handleSave={handleSave}/>
       </div>
 
       <Modal open={openPreview} onClose={handleClose}>
-        <Box sx={{
+            {/* <div dangerouslySetInnerHTML={{ __html: editor?.getHTML() || '' }} /> */}
+            <Box sx={{
           position: 'absolute',
           top: '50%',
           left: '50%',
@@ -187,8 +304,9 @@ export default function Editor({ content, title, id }: EditorProps) {
           width: '80%',
           borderRadius: 2
         }}>
-          <div dangerouslySetInnerHTML={{ __html: editor?.getHTML() || '' }} />
+          <div dangerouslySetInnerHTML={{ __html: editorHtmlData }} />
         </Box>
+
       </Modal>
     </div>
   );
