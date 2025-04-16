@@ -120,8 +120,13 @@ export default function Editor({ content, title, id }: EditorProps) {
   });
 
   useEffect(() => {
-    console.log("Editor initialized",content, title);
-  }, [content, title]);
+    if (editor && content) {
+      editor.commands.setContent(content);
+    }
+    if (titleEditor && title) {
+      titleEditor.commands.setContent(`<h1>${title}</h1>`);
+    }
+  }, [content, title, editor, titleEditor]);
   /**
    * USER FLOW EXPECTATIONS:
    * 1. User sees an "Article title..." placeholder to start with a heading.
@@ -132,15 +137,17 @@ export default function Editor({ content, title, id }: EditorProps) {
    */
 
   return (
-    <div className="flex flex-row w-full h-full">
+    <div className="flex flex-row w-full h-full px-10 items-center justify-evenly">
       {/* Editor container with scroll */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl mx-auto">
+      <div className=" bg-white/90 backdrop-blur-lg rounded-xl shadow-lg overflow-y-auto" style={{ height: '85vh' , width: '80%' }}>
         <EditorContent editor={titleEditor} />
         <EditorContent editor={editor} />
       </div>
 
       {/* Right sidebar: MenuBar */}
+      <div className=" w-56 bg-white border-l border-gray-200 shadow-lg z-50 px-3 py-4 flex items-center justify-center" style={{ height: '85vh'}}>
       <MenuBar editor={editor} />
+      </div>
     </div>
   );
 }

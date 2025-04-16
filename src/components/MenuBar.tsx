@@ -34,7 +34,6 @@ const MenuBar = ({ editor }: { editor: any }) => {
     if (!editor) return null;
 
     return (
-      <div style={{height: "90vh" ,left:"101%"}}className="fixed top-0  w-56 bg-white border-l border-gray-200 shadow-lg z-50 overflow-y-auto px-3 py-4 flex items-center justify-center">
         <div className="grid grid-cols-2 gap-3 auto-rows-min">
           <select
             onChange={(e) =>
@@ -264,7 +263,6 @@ const MenuBar = ({ editor }: { editor: any }) => {
             <HorizontalRuleIcon />
           </button>
         </div>
-      </div>
     );
   };
 

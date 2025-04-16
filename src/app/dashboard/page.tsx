@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import CreatePostModal from "@/components/CreatePostModal";
+import Header from "@/components/Header";
 
 export default function Dashboard() {
   const [posts, setPosts] = useState([
@@ -12,36 +13,13 @@ export default function Dashboard() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newTemplate, setNewTemplate] = useState("");
-  const [name, setName] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
-    const storedName = localStorage.getItem("name");
-    if (storedName) setName(storedName);
-  }, []);
-
-  const handleLogout = async () => {
-    await fetch('/api/auth', { method: 'GET' });
-    localStorage.removeItem("token");
-    localStorage.removeItem("name");
-    router.push("/");
-  };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6">
-      <header className="flex justify-between items-center max-w-7xl mx-auto bg-white/70 backdrop-blur px-6 py-4 rounded-xl shadow-md">
-        <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
-        <div className="flex items-center gap-4">
-          <h2 className="text-sm text-gray-600">Welcome, {name}</h2>
-          <button
-            onClick={handleLogout}
-            className="text-sm bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-md transition"
-          >
-            Logout
-          </button>
-        </div>
-      </header>
-
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-blue-100">
+    <Header title="Dashboard"  />
+    <main className="p-6">
       <section className="max-w-7xl mx-auto mt-10">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold text-gray-800">Your Posts</h2>
@@ -89,5 +67,6 @@ export default function Dashboard() {
         )}
       </section>
     </main>
+    </div>
   );
 }
