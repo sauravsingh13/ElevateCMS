@@ -7,13 +7,13 @@ export async function verifyToken(request) {
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-      return { error: { error: 'Unauthorized: Token missing' }, status: 401 };
+      return { error: { error: 'Unauthorized: Token missing' ,status: 401} };
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret123');
 
     return { userId: decoded.userId };
   } catch (error) {
-    return { error: { error: 'Unauthorized: Invalid token' }, status: 403 };
+    return { error: { error: 'Unauthorized: Invalid token' ,status: 403} };
   }
 }

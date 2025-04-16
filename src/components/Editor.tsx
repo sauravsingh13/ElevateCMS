@@ -32,7 +32,9 @@ import ImageIcon from '@mui/icons-material/Image';
 import { SlashCommand } from "@/extensions/slash-command";
 import MenuBar from "@/components/MenuBar";
 import './editor.css'
-import { use, useEffect } from "react";
+import { use, useEffect, useState } from "react";
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
 
 interface EditorProps {
   content: string;
@@ -119,13 +121,35 @@ export default function Editor({ content, title, id }: EditorProps) {
     },
   });
 
+  const [openPreview, setOpenPreview] = useState(false);
+
+  const handleSave = async (published: boolean) => {
+    const token = localStorage.getItem("token");
+    const titleEl = document.querySelector(".ProseMirror h1");
+    const title = titleEl ? titleEl.textContent : "Untitled";
+    const content = editor?.getHTML();
+
+    await fetch("/api/posts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ id, content, published })
+    });
+    alert(published ? "Published!" : "Saved as Draft");
+  };
+
+  const handlePreview = () => setOpenPreview(true);
+  const handleClose = () => setOpenPreview(false);
+
   useEffect(() => {
     if (editor && content) {
       editor.commands.setContent(content);
     }
-    if (titleEditor && title) {
-      titleEditor.commands.setContent(`<h1>${title}</h1>`);
-    }
+    // if (titleEditor && title) {
+    //   titleEditor.commands.setContent(`<h1>${title}</h1>`);
+    // }
   }, [content, title, editor, titleEditor]);
   /**
    * USER FLOW EXPECTATIONS:
@@ -139,15 +163,33 @@ export default function Editor({ content, title, id }: EditorProps) {
   return (
     <div className="flex flex-row w-full h-full px-10 items-center justify-evenly">
       {/* Editor container with scroll */}
-      <div className=" bg-white/90 backdrop-blur-lg rounded-xl shadow-lg overflow-y-auto" style={{ height: '85vh' , width: '80%' }}>
-        <EditorContent editor={titleEditor} />
+      <div className="flex flex-col items-center bg-white/90 backdrop-blur-lg rounded-xl shadow-lg overflow-y-auto" style={{ height: '85vh' , width: '80%' }}>
+        {/* <EditorContent editor={titleEditor} /> */}
         <EditorContent editor={editor} />
       </div>
 
       {/* Right sidebar: MenuBar */}
-      <div className=" w-56 bg-white border-l border-gray-200 shadow-lg z-50 px-3 py-4 flex items-center justify-center" style={{ height: '85vh'}}>
-      <MenuBar editor={editor} />
+      <div className=" w-56 bg-white border-l border-gray-200 shadow-lg z-50 px-3 py-4 flexr" style={{ height: '85vh'}}>
+      <MenuBar editor={editor} id={id}/>
       </div>
+
+      <Modal open={openPreview} onClose={handleClose}>
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          bgcolor: 'background.paper',
+          boxShadow: 24,
+          p: 4,
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          width: '80%',
+          borderRadius: 2
+        }}>
+          <div dangerouslySetInnerHTML={{ __html: editor?.getHTML() || '' }} />
+        </Box>
+      </Modal>
     </div>
   );
 }

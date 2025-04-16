@@ -4,69 +4,142 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import CreatePostModal from "@/components/CreatePostModal";
 import Header from "@/components/Header";
+import Image from "next/image";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import ThumbDownIcon from "@mui/icons-material/ThumbDown";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 export default function Dashboard() {
-  const [posts, setPosts] = useState([
-    { id: 1, title: "Welcome Post", status: "Published" },
-    { id: 2, title: "Draft Idea", status: "Draft" },
-  ]);
+  const [posts, setPosts] = useState<{
+    _id: string;
+    title: string;
+    thumbnail?: string;
+    published: boolean;
+    type: string;
+    likes: number;
+    dislikes: number;
+    views: number;
+    publishedAt?: string;
+  }[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newTemplate, setNewTemplate] = useState("");
   const router = useRouter();
 
+  const fetchPosts = async () => {
+    const res = await fetch("/api/posts", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    if (res.status === 401 || res.status === 403) {
+      router.push('/');
+      return;
+    }
+
+    const data = await res.json();
+    if (Array.isArray(data)) {
+      setPosts(data);
+    } else {
+      setPosts([]);
+      console.error("Unexpected response format:", data);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    await fetch(`/api/posts?id=${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    setPosts((prev) => prev.filter((post) => post._id !== id));
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const name = typeof window !== "undefined" ? localStorage.getItem("name") || "" : "";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-blue-100">
-    <Header title="Dashboard"  />
-    <main className="p-6">
-      <section className="max-w-7xl mx-auto mt-10">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold text-gray-800">Your Posts</h2>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="bg-slate-800 hover:bg-slate-900 text-white px-5 py-2.5 rounded-md shadow-sm transition"
-          >
-            + Create New
-          </button>
-        </div>
+      <Header title="Dashboard" />
+      <main className="p-6">
+        <section className="max-w-7xl mx-auto mt-2 overflow-auto" style={{ height: "85vh" }}>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold text-gray-800">Your Posts</h2>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="bg-slate-800 hover:bg-slate-900 text-white px-5 py-2.5 rounded-md shadow-sm transition"
+            >
+              + Create New
+            </button>
+          </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {posts.map((post) => (
-            <div key={post.id} className="bg-white/95 backdrop-blur border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition">
-              <h3 className="text-xl font-semibold text-gray-800">{post.title}</h3>
-              <p className={`mt-2 text-sm font-medium ${post.status === "Published" ? "text-green-600" : "text-yellow-500"}`}>
-                {post.status}
-              </p>
-              <div className="mt-4 flex gap-2">
-                <button className="text-sm text-white bg-slate-700 hover:bg-slate-800 px-4 py-1.5 rounded-md">Edit</button>
-                <button className="text-sm text-white bg-emerald-600 hover:bg-emerald-700 px-4 py-1.5 rounded-md">Publish</button>
-                <button className="text-sm text-white bg-neutral-500 hover:bg-neutral-600 px-4 py-1.5 rounded-md">Delete</button>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {posts.map((post) => (
+              <div key={post._id} className="bg-white/95 backdrop-blur border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                <Image
+                  src={post.thumbnail || "/no-image.jpg"}
+                  alt={post.title}
+                  width={400}
+                  height={200}
+                  className="w-full h-40 object-cover rounded mb-3"
+                />
+                <h3 className="text-xl font-semibold text-gray-800 mb-1 px-4">{post.title}</h3>
+                <div className="mt-2 flex justify-evenly gap-2 px-4">
+                  <button
+                    className="text-sm text-white bg-slate-700 hover:bg-slate-800 px-4 py-1.5 rounded-md"
+                    onClick={() => router.push(`/dashboard/edit/${post._id}`)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="text-sm text-white bg-neutral-500 hover:bg-neutral-600 px-4 py-1.5 rounded-md"
+                    onClick={() => handleDelete(post._id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+                <div className="mt-2 flex items-center justify-between text-sm font-medium text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
+                  <span className={`${post.published ? "text-green-600" : "text-yellow-500"}`}>
+                    {post.published ? "Published" : "Draft"}
+                  </span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
+                      <ThumbUpIcon fontSize="small" className="text-gray-500" />
+                      <span>{post.likes}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <ThumbDownIcon fontSize="small" className="text-gray-500" />
+                      <span>{post.dislikes}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <VisibilityIcon fontSize="small" className="text-gray-500" />
+                      <span>{post.views}</span>
+                    </div>
+                  </div>
+                </div>
+                {post.publishedAt && (
+                  <p className="text-sm text-gray-500">
+                    Published: {new Date(post.publishedAt).toLocaleDateString()}
+                  </p>
+                )}
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        {showCreateModal && (
-          <CreatePostModal
-            newTitle={newTitle}
-            // newTemplate={newTemplate}
-            // setNewTitle={setNewTitle}
-            setNewTemplate={setNewTemplate}
-            onClose={() => setShowCreateModal(false)}
-            // onCreate={(title: string, template: string) => {
-            //   const newId = posts.length + 1;
-            //   const newPost = { id: newId, title: title || `Untitled ${newId}`, status: "Draft", template };
-            //   setPosts([...posts, newPost]);
-            //   setShowCreateModal(false);
-            //   setNewTitle("");
-            //   setNewTemplate("");
-            //   router.push(`/dashboard/edit/${newId}`);
-            // }}
-          />
-        )}
-      </section>
-    </main>
+          {showCreateModal && (
+            <CreatePostModal
+              newTitle={newTitle}
+              setNewTemplate={setNewTemplate}
+              onClose={() => setShowCreateModal(false)}
+            />
+          )}
+        </section>
+      </main>
     </div>
   );
 }
