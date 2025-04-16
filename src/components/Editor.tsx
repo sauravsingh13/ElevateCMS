@@ -32,8 +32,15 @@ import ImageIcon from '@mui/icons-material/Image';
 import { SlashCommand } from "@/extensions/slash-command";
 import MenuBar from "@/components/MenuBar";
 import './editor.css'
+import { use, useEffect } from "react";
 
-export default function Editor() {
+interface EditorProps {
+  content: string;
+  title: string;
+  id: string;
+}
+
+export default function Editor({ content, title, id }: EditorProps) {
   const titleEditor = useEditor({
     extensions: [
       StarterKit,
@@ -42,7 +49,7 @@ export default function Editor() {
         showOnlyWhenEditable: true,
       }),
     ],
-    content: "<h1></h1>",
+    content: `<h1>${title}</h1>`,
     editorProps: {
       attributes: {
         class:
@@ -103,7 +110,7 @@ export default function Editor() {
         },
       }),
     ],
-    content: "<p></p>",
+    content,
     editorProps: {
       attributes: {
         class:
@@ -112,6 +119,9 @@ export default function Editor() {
     },
   });
 
+  useEffect(() => {
+    console.log("Editor initialized",content, title);
+  }, [content, title]);
   /**
    * USER FLOW EXPECTATIONS:
    * 1. User sees an "Article title..." placeholder to start with a heading.

@@ -1,20 +1,40 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { useState } from "react";
 import Editor from "@/components/Editor";
 
 export default function EditPostPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id;
   const [title, setTitle] = useState(`Post Title ${id}`);
   const [content, setContent] = useState("");
   const [status, setStatus] = useState("Draft");
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const res = await fetch(`/api/posts?id=${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const post = await res.json();
+        setTitle(post.title);
+        setContent(post.content);
+        setStatus(post.published ? "Published" : "Draft");
+      } catch (err) {
+        console.error("Failed to fetch post:", err);
+      }
+    };
+    if (id) fetchPost();
+  }, [id]);
 
   return (
     <main className="min-h-screen p-8 bg-gradient-to-br from-white via-indigo-50 to-blue-100">
       <div className="max-w-5xl mx-auto bg-white/90 backdrop-blur-lg rounded-xl shadow-lg p-8">
         <div className="space-y-6">
-          <Editor />
+          <Editor content={content} title={title} id={Array.isArray(id) ? id[0] : id || ""}/>
 
           <div className="flex justify-end gap-4">
             <button

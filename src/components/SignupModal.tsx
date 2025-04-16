@@ -4,6 +4,7 @@ import { useState } from "react";
 export default function SignupModal({ onClose }: { onClose: () => void }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [error, setError] = useState("");
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -11,7 +12,7 @@ export default function SignupModal({ onClose }: { onClose: () => void }) {
     const res = await fetch("/api/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, isSignup: true })
+      body: JSON.stringify({ name, email, password, isSignup: true })
     });
     const data = await res.json();
     if (res.ok) window.location.href = "/dashboard";
@@ -24,6 +25,8 @@ export default function SignupModal({ onClose }: { onClose: () => void }) {
         <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-6">Create an Account</h2>
         {error && <p className="text-red-500 mb-2">{error}</p>}
         <form onSubmit={handleSignup}>
+          <input type="text" placeholder="Name" className="w-full mb-4 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={name} onChange={(e) => setName(e.target.value)} required />
           <input type="email" placeholder="Email" className="w-full mb-4 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={email} onChange={(e) => setEmail(e.target.value)} required />
           <input type="password" placeholder="Password" className="w-full mb-4 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"

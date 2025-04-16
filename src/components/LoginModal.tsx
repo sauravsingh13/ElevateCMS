@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginModal({ onClose }: { onClose: () => void }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,8 +16,12 @@ export default function LoginModal({ onClose }: { onClose: () => void }) {
       body: JSON.stringify({ email, password, isSignup: false })
     });
     const data = await res.json();
-    if (res.ok) window.location.href = "/dashboard";
-    else setError(data.error || "Login failed");
+    console.log('json', data);
+    if (res.ok) {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("name", data.user.name);
+      router.push("/dashboard");
+    } else setError(data.error || "Login failed");
   };
 
   return (

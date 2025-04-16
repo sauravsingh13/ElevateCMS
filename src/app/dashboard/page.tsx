@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import CreatePostModal from "@/components/CreatePostModal";
 
 export default function Dashboard() {
   const [posts, setPosts] = useState([
@@ -11,15 +12,34 @@ export default function Dashboard() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newTemplate, setNewTemplate] = useState("");
+  const [name, setName] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    const storedName = localStorage.getItem("name");
+    if (storedName) setName(storedName);
+  }, []);
+
+  const handleLogout = async () => {
+    await fetch('/api/auth', { method: 'GET' });
+    localStorage.removeItem("token");
+    localStorage.removeItem("name");
+    router.push("/");
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6">
       <header className="flex justify-between items-center max-w-7xl mx-auto bg-white/70 backdrop-blur px-6 py-4 rounded-xl shadow-md">
         <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
-        <button className="text-sm bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-md transition">
-          Logout
-        </button>
+        <div className="flex items-center gap-4">
+          <h2 className="text-sm text-gray-600">Welcome, {name}</h2>
+          <button
+            onClick={handleLogout}
+            className="text-sm bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-md transition"
+          >
+            Logout
+          </button>
+        </div>
       </header>
 
       <section className="max-w-7xl mx-auto mt-10">
@@ -50,50 +70,22 @@ export default function Dashboard() {
         </div>
 
         {showCreateModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xl bg-black/30">
-            <div className="bg-white/90 backdrop-blur border border-gray-200 rounded-xl p-6 shadow-xl w-full max-w-md animate-fade-in">
-              <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">Create New Post</h2>
-              <input
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                type="text"
-                placeholder="Post Title"
-                className="w-full mb-4 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <select
-                value={newTemplate}
-                onChange={(e) => setNewTemplate(e.target.value)}
-                className="w-full mb-4 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select a Template</option>
-                <option value="blog">Blog Template</option>
-                <option value="doc">Documentation Template</option>
-                <option value="custom">Custom Layout</option>
-              </select>
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => setShowCreateModal(false)}
-                  className="text-sm text-gray-500 hover:text-blue-600 transition underline"
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={() => {
-                    const newId = posts.length + 1;
-                    const newPost = { id: newId, title: newTitle || `Untitled ${newId}`, status: "Draft", template: newTemplate };
-                    setPosts([...posts, newPost]);
-                    setShowCreateModal(false);
-                    setNewTitle("");
-                    setNewTemplate("");
-                    router.push(`/dashboard/edit/${newId}`);
-                  }} 
-                  className="text-sm bg-slate-800 hover:bg-slate-900 text-white px-5 py-2 rounded-md shadow-sm transition"
-                >
-                  Create
-                </button>
-              </div>
-            </div>
-          </div>
+          <CreatePostModal
+            newTitle={newTitle}
+            // newTemplate={newTemplate}
+            // setNewTitle={setNewTitle}
+            setNewTemplate={setNewTemplate}
+            onClose={() => setShowCreateModal(false)}
+            // onCreate={(title: string, template: string) => {
+            //   const newId = posts.length + 1;
+            //   const newPost = { id: newId, title: title || `Untitled ${newId}`, status: "Draft", template };
+            //   setPosts([...posts, newPost]);
+            //   setShowCreateModal(false);
+            //   setNewTitle("");
+            //   setNewTemplate("");
+            //   router.push(`/dashboard/edit/${newId}`);
+            // }}
+          />
         )}
       </section>
     </main>
