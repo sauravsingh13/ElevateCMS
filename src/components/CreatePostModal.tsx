@@ -55,10 +55,12 @@ export default function CreatePostModal({
           <LoopIcon className="animate-spin text-indigo-600" style={{ fontSize: 48 }} />
         </div>
       ) : (
-        <div className="bg-white/90 backdrop-blur border border-gray-200 rounded-xl p-6 shadow-xl w-full max-w-5xl animate-fade-in">
+        <div className="bg-white/95 backdrop-blur-2xl border border-gray-300 rounded-3xl p-8 shadow-2xl w-full max-w-6xl animate-fade-in">
           {!templates.length ? (
             <>
-              <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">Create New Post</h2>
+              <h2 className="text-4xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 drop-shadow-md mb-6 animate-pulse">
+              Create New Post
+        </h2>
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -73,17 +75,18 @@ export default function CreatePostModal({
               >
                 <option value="">Select a Template</option>
                 <option value="blog">Blog Template</option>
-                <option value="doc">Documentation Template</option>
-                <option value="custom">Custom Layout</option>
+                {/* <option value="doc">Documentation Template</option>
+                <option value="custom">Custom Layout</option> */}
               </select>
               <div className="flex justify-end gap-3">
-                <button onClick={onClose} className="text-sm text-gray-500 hover:text-blue-600 transition underline">Cancel</button>
-                <button onClick={handleProceed} className="text-sm bg-slate-800 hover:bg-slate-900 text-white px-5 py-2 rounded-md shadow-sm transition">Proceed</button>
+                <button onClick={onClose} className="text-sm text-gray-600 hover:text-red-500 hover:underline transition duration-200 font-medium">Cancel</button>
+                <button onClick={handleProceed} className="text-sm bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-2 rounded-md shadow-lg transition-transform transform hover:scale-105">Proceed</button>
               </div>
             </>
           ) : (
             <div className="flex gap-6">
               <div className="w-1/3 max-h-[60vh] overflow-y-auto pr-2 space-y-2">
+                <h2 className="text-4xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 drop-shadow-md mb-6 animate-pulse">Select a Template</h2>
                 {templates.map((tpl) => (
                   <div
                     key={tpl.id}
@@ -115,7 +118,7 @@ export default function CreatePostModal({
               </button>
               <button
                 onClick={() => setTemplates([])}
-                className="text-sm text-gray-500 hover:text-blue-600 transition underline"
+                className="text-sm px-4 py-2 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-md shadow-sm transition"
               >
                 ← Back
               </button>
@@ -147,7 +150,7 @@ export default function CreatePostModal({
                     console.error("Failed to create post:", err);
                   }
                 }}
-                className="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-md shadow-sm transition"
+                className="text-sm bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white px-6 py-2 rounded-md shadow-lg transition-transform transform hover:scale-105"
               >
                 Create
               </button>
@@ -157,21 +160,21 @@ export default function CreatePostModal({
       )}
       
       {showAIPrompt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md animate-fade-in">
-            <h2 className="text-lg font-semibold text-gray-800 mb-2">Describe Your Template</h2>
-            <p className="text-sm text-gray-500 mb-4">We'll use this to generate a starting point for your post.</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white to-gray-100/90 backdrop-blur-md">
+          <div className="bg-white/95 p-8 rounded-2xl shadow-2xl w-full max-w-md animate-fade-in border border-gray-200">
+            <h2 className="text-2xl font-bold text-gray-800 mb-3 text-center">🧠 Generate with Gen AI</h2>
+            <p className="text-sm text-gray-600 mb-4 text-center">Provide a prompt and let ElevateCMS's Gen AI craft a stunning blog template for you!</p>
             <textarea
               value={aiPrompt}
               onChange={(e) => setAIPrompt(e.target.value)}
               rows={4}
               placeholder="Example: A professional blog layout with sidebar for travel stories..."
-              className="w-full p-3 border border-gray-300 rounded-md shadow-sm mb-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full p-4 border border-gray-300 rounded-lg shadow-sm mb-5 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
             />
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowAIPrompt(false)}
-                className="text-sm text-gray-500 hover:text-blue-600 transition underline"
+                className="text-sm text-gray-500 hover:text-red-500 transition"
               >
                 Cancel
               </button>
@@ -192,7 +195,7 @@ export default function CreatePostModal({
                   setShowAIPrompt(false);
                   setLoading(false);
                 }}
-                className="text-sm bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-md shadow-sm transition"
+                className="text-sm bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-2 rounded-lg shadow-md transition"
               >
                 Generate
               </button>
