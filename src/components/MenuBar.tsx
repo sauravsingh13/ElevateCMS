@@ -23,8 +23,11 @@ import AudiotrackIcon from '@mui/icons-material/Audiotrack';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
+
 
 // Import necessary Tiptap extensions
 import BulletList from '@tiptap/extension-bullet-list';
@@ -102,6 +105,19 @@ const MenuBar = ({ editor, id, setBgColor, setBgImage, setTheme, handlePreviewMo
                     }}
                     className="w-full"
                   />
+                  <button
+                    onClick={() => {
+                      setBgImage('');
+                      const editorElement = document.querySelector('.tiptap');
+                      if (editorElement) {
+                        editorElement.setAttribute('style', editorElement.getAttribute('style')?.replace(/background-image:[^;]*;?/, '') || '');
+                      }
+                    }}
+                    className="mt-1 flex items-center text-sm text-red-600 hover:text-red-800"
+                    title="Remove Background Image"
+                  >
+                    <DeleteIcon className="mr-1 text-base" />
+                  </button>
                 </div>
               </div>
  
@@ -219,24 +235,25 @@ const MenuBar = ({ editor, id, setBgColor, setBgImage, setTheme, handlePreviewMo
                             if (!file) return;
  
                             const alt = prompt("Enter alt text:");
-                            const alignment = prompt("Align image left, center, or right?", "center");
+                            // const alignment = prompt("Align image left, center, or right?", "center");
  
                             const reader = new FileReader();
                             reader.onload = () => {
                                 const base64 = reader.result as string;
-                                editor
-                                    .chain()
-                                    .focus()
-                                    .insertContent({
-                                        type: "resizableImage",
-                                        attrs: {
-                                            src: base64,
-                                            alt: alt || "",
-                                            width: 300,
-                                            alignment: alignment || "center",
-                                        },
-                                    })
-                                    .run();
+                                // editor
+                                //     .chain()
+                                //     .focus()
+                                //     .insertContent({
+                                //         type: "resizableImage",
+                                //         attrs: {
+                                //             src: base64,
+                                //             alt: alt || "",
+                                //             width: 300,
+                                //             alignment: alignment || "center",
+                                //         },
+                                //     })
+                                //     .run();
+                                editor.chain().focus().setImage({ src: base64, alt: alt }).run();
                             };
                             reader.readAsDataURL(file);
                         };
@@ -341,12 +358,21 @@ const MenuBar = ({ editor, id, setBgColor, setBgImage, setTheme, handlePreviewMo
                     <FormatListNumberedIcon />
                 </button>
 
-                <button
+            <button
                     title="Horizontal Rule"
                     onClick={() => editor.chain().focus().setHorizontalRule().run()}
                     className="px-2 py-1 rounded hover:bg-blue-100 text-gray-700"
                 >
                     <HorizontalRuleIcon />
+                </button>
+                <button
+                    title="Three Column Layout"
+                    onClick={() => {
+                        editor.chain().focus().insertThreeColumnLayout().run()
+                    }}
+                    className="px-2 py-1 rounded bg-gray-100 text-gray-700"
+                >
+                    <ViewColumnIcon />
                 </button>
             </div>
 
@@ -374,7 +400,7 @@ const MenuBar = ({ editor, id, setBgColor, setBgImage, setTheme, handlePreviewMo
                 Preview
               </button>
             </div>
-
+{/* 
             <Modal open={openPreview} onClose={handleClose}>
                 <Box sx={{
                     position: 'absolute',
@@ -391,32 +417,11 @@ const MenuBar = ({ editor, id, setBgColor, setBgImage, setTheme, handlePreviewMo
                 }}>
                     <div
                       dangerouslySetInnerHTML={{
-                        __html: editor?.getHTML()
-                          ?.replace(/<resizable-image([^>]*)>/g, (_: string, attr: string) => {
-                            const styleMatch = attr.match(/width="(\d+)"/);
-                            const width = styleMatch ? `${styleMatch[1]}px` : "300px";
-                            const heightMatch = attr.match(/height="([^"]*)"/);
-                            const height = heightMatch ? heightMatch[1] : "auto";
-                            const altMatch = attr.match(/alt="([^"]*)"/);
-                            const alt = altMatch ? altMatch[1] : "";
-                            const srcMatch = attr.match(/src="([^"]*)"/);
-                            const src = srcMatch ? srcMatch[1] : "";
-                            const alignmentMatch = attr.match(/alignment="([^"]*)"/);
-                            const alignment = alignmentMatch ? alignmentMatch[1] : "center";
-
-                            return `<img src="${src}" alt="${alt}" style="display: block; margin: ${
-                              alignment === "left"
-                                ? "0 auto 0 0"
-                                : alignment === "right"
-                                ? "0 0 0 auto"
-                                : "0 auto"
-                            }; max-width: 100%; width: ${width}; height: ${height}; object-fit: cover; border-radius: 6px;" />`;
-                          })
-                          .replace(/<\/resizable-image>/g, '')
+                        __html: typeof editor?.getHTML === 'function' ? editor.getHTML() : ''
                       }}
                     />
                 </Box>
-            </Modal>
+            </Modal> */}
         </>
     );
 };

@@ -87,3 +87,36 @@ h3 {
   margin-right: 0;
   font-weight: bold;
 }
+
+div[data-type="three-column"] {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  min-height: 200px;
+  margin: 1rem 0;
+}
+
+div[data-type="column-block"] {
+  flex: 1;
+  padding: 12px;
+  min-height: 100px;
+}
+
+/* Ensures proper wrapping and overflow handling */
+div[data-type="column-block"] {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Optional: Add responsive behavior */
+@media (max-width: 768px) {
+  div[data-type="three-column"] {
+    flex-direction: column;
+  }
+  
+  div[data-type="column-block"] {
+    width: 100% !important;
+    margin-bottom: 12px;
+  }
+}
