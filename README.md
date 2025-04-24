@@ -3,6 +3,11 @@ ElevateCMS is a sleek, modern, and developer-friendly Content Management System 
 
 At its core, ElevateCMS is designed to empower content creators. The platform features a clean admin dashboard where users can create, edit, and manage posts using a rich markdown editor with live preview. Whether you're drafting technical tutorials, lifestyle blogs, or marketing content — ElevateCMS ensures a smooth and intuitive writing experience.
 
+---
+🧠 **AI Integration for Effortless Blogging**  
+ElevateCMS now features powerful Gen AI capabilities that allow users to generate entire blog templates and content using OpenAI. With a simple prompt, users can create AI-generated blog structures, titles, and full HTML content — saving time and sparking creativity. The platform includes a beautifully styled prompt interface and instantly converts AI responses into ready-to-edit templates. Whether you're stuck on an idea or want to fast-track your writing, our AI assistant has you covered.
+---
+
 Each post is saved in markdown format and rendered as a fully responsive, shareable web page using a dynamic template engine. The platform supports dynamic routing via Next.js, allowing clean and SEO-friendly URLs like /blog/my-first-post. With support for customizable templates, users can design a blog layout that matches their brand or aesthetic.
 
 On the backend, ElevateCMS uses API routes provided by Next.js for seamless post creation, retrieval, and management — removing the need for an external backend server. This keeps the system lightweight, modular, and easy to deploy on platforms like Vercel, Netlify, or Render.
@@ -19,6 +24,7 @@ Admin dashboard for content creation and management
 Headless CMS-friendly architecture
 
 Easy deployment and scalability with Next.js
+ - AI-powered blog generation using OpenAI
 
 Whether you're building a personal blog, a developer journal, a company knowledge base, or a small publishing platform — ElevateCMS offers all the flexibility and control you need, with a clean, professional look and lightning-fast performance.
 
