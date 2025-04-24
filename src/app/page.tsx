@@ -51,8 +51,8 @@ export default function HomePage() {
             inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           }`}
         >
-          <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
-            Your ideas, your platform. <br /> Create beautifully and scale easily.
+          <h1 className="text-4xl font-bold text-center text-transparent bg-clip-text mb-6 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 drop-shadow-md mb-6 animate-pulse">
+            Supercharge your ideas with GenAI. <br /> Build stunning blogs effortlessly.
           </h1>
         </div>
         <div
@@ -61,7 +61,7 @@ export default function HomePage() {
           }`}
         >
           <p className="text-lg text-gray-700 mb-10">
-            Empower your digital voice with a sleek CMS to build, publish, and grow your content brand like a pro.
+            ElevateCMS now comes with built-in <span className="text-blue-600 font-semibold">GenAI-powered templates</span> that help you create rich, SEO-ready content in seconds.
           </p>
         </div>
         <div
@@ -72,7 +72,7 @@ export default function HomePage() {
           <div className="flex justify-center gap-4 flex-wrap">
             <button
               onClick={() => setShowSignup(true)}
-              className="bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white px-6 py-3 rounded-full font-medium text-lg shadow-lg transition"
+              className="bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white px-6 py-3 rounded-full font-bold text-lg shadow-lg transition"
             >
               Start for Free
             </button>

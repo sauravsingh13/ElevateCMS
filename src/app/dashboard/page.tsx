@@ -70,10 +70,12 @@ export default function Dashboard() {
       <main className="p-6">
         <section className="max-w-7xl mx-auto mt-2 overflow-auto" style={{ height: "85vh" }}>
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold text-gray-800">Your Posts</h2>
+            {posts.length > 0 && (
+              <h2 className="text-2xl font-semibold text-gray-800">Your Posts</h2>
+            )}
             <button
               onClick={() => setShowCreateModal(true)}
-              className="bg-slate-800 hover:bg-slate-900 text-white px-5 py-2.5 rounded-md shadow-sm transition"
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-lg shadow-lg transition transform hover:scale-105"
             >
               + Create New
             </button>
@@ -147,6 +149,19 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
+
+          {posts.length === 0 && (
+            <div className="flex flex-col items-center justify-center mt-20 text-center">
+              <Image
+                src="/logo.png"
+                alt="ElevateCMS Logo"
+                width={300}
+                height={300}
+                className="mb-4 opacity-40"
+              />
+              <p className="text-2xl md:text-3xl font-bold text-indigo-600 animate-bounce transition-all duration-500 ease-in-out">Generate your Gen AI-powered blog today!</p>
+            </div>
+          )}
 
           {showCreateModal && (
             <CreatePostModal
