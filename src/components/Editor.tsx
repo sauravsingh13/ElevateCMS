@@ -45,7 +45,9 @@ import './editor.css'
 import { useEffect, useState } from "react";
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
-import ResizableImage from "@/extensions/ResizableImage";
+import ImageResize from 'tiptap-extension-resize-image';
+import { ThreeColumnLayout } from '@/extensions/ThreeColumnLayout';
+import { ColumnBlock } from '@/extensions/ColumnBlock';
 
 interface EditorProps {
   content: string;
@@ -82,6 +84,8 @@ export default function Editor({ content, title, id }: EditorProps) {
       StarterKit,
       Underline,
       CustomImage,
+      ThreeColumnLayout,
+      ImageResize,
       Placeholder.configure({
         placeholder: "hit /",
       }),
@@ -95,7 +99,7 @@ export default function Editor({ content, title, id }: EditorProps) {
       TableRow,
       TableCell,
       TableHeader,
-      ResizableImage,
+      ColumnBlock,
       Youtube.configure({
         width: 640,
         height: 360,
@@ -222,13 +226,13 @@ function getCompleteHTML() {
         }
         
         // Handle image replacements as you were doing
-        doc.querySelectorAll("img").forEach((img) => {
-          const wrapper = document.createElement("div");
-          wrapper.innerHTML = `<resizable-image src="${img.src}" alt="${img.alt}" width="300" alignment="center"></resizable-image>`;
-          if (wrapper.firstChild) {
-            img.replaceWith(wrapper.firstChild);
-          }
-        });
+        // doc.querySelectorAll("img").forEach((img) => {
+        //   const wrapper = document.createElement("div");
+        //   wrapper.innerHTML = `<resizable-image src="${img.src}" alt="${img.alt}" width="300" alignment="center"></resizable-image>`;
+        //   if (wrapper.firstChild) {
+        //     img.replaceWith(wrapper.firstChild);
+        //   }
+        // });
         
         // Get the inner content of the root div (if it exists)
         const contentToSet = rootDiv && rootDiv.tagName === 'DIV' 
