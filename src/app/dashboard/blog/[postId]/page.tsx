@@ -9,10 +9,9 @@ interface BlogPageParams {
 export default async function BlogPage({ params }: { params: any }) {
     const resolvedParams = await params;
     const { postId } = resolvedParams;
-      const res = await fetch(`http://localhost:3000/api/blog/${postId}`, {
+      const res = await fetch(`/api/blog/${postId}`, {
     next: { revalidate: 0 },
   });
-console.log('ajdfsjkd',res);
   if (!res.ok) return notFound();
 
   const html = await res.text();

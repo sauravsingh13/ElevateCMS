@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ELEVATE CMS",
-  description: "Elevate your content management experience with our powerful and user-friendly CMS.",
+  title: "ELECVATE CMS",
+  description: "A Custom Blogging & Content Management Platform",
 };
 
 export default function RootLayout({
