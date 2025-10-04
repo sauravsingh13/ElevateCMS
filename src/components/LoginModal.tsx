@@ -16,7 +16,6 @@ export default function LoginModal({ onClose }: { onClose: () => void }) {
       body: JSON.stringify({ email, password, isSignup: false })
     });
     const data = await res.json();
-    console.log('json', data);
     if (res.ok) {
       localStorage.setItem("token", data.token);
       localStorage.setItem("name", data.user.name);
